@@ -53,6 +53,9 @@ typedef struct PCMachineState {
     bool default_bus_bypass_iommu;
     uint64_t max_fw_size;
 
+    char *efizzer_sockpath;
+    uint64_t efizzer_addr;
+
     /* ACPI Memory hotplug IO base address */
     hwaddr memhp_io_base;
 
@@ -68,6 +71,9 @@ typedef struct PCMachineState {
 #define PC_MACHINE_I8042            "i8042"
 #define PC_MACHINE_MAX_FW_SIZE      "max-fw-size"
 #define PC_MACHINE_SMBIOS_EP        "smbios-entry-point-type"
+
+#define PC_MACHINE_EFIZZER_BASEADDR  "efizzer-addr"
+#define PC_MACHINE_EFIZZER_SOCKPATH  "efizzer-sock"
 
 /**
  * PCMachineClass:

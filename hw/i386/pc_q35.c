@@ -60,6 +60,8 @@
 #include "hw/i386/acpi-build.h"
 #include "target/i386/cpu.h"
 
+#include "hw/misc/efizzer.h"
+
 /* ICH9 AHCI has 6 ports */
 #define MAX_SATA_PORTS     6
 
@@ -346,6 +348,27 @@ static void pc_q35_init(MachineState *machine)
         nvdimm_init_acpi_state(machine->nvdimms_state, system_io,
                                x86_nvdimm_acpi_dsmio,
                                x86ms->fw_cfg, OBJECT(pcms));
+    }
+
+    if (pcms->efizzer_sockpath != NULL) {
+      info_report("Create efizzer device :)");
+
+      if (!pcms->efizzer_addr) {
+        error_report("%s property is needed!",PC_MACHINE_EFIZZER_BASEADDR);
+      } else {
+        DeviceState *dev = NULL;
+        SysBusDevice *sdev = NULL;
+
+
+        dev = qdev_new(TYPE_EFIZZER);
+        qdev_prop_set_string(dev, TYPE_EFIZZER_PROP_SOCKET, pcms->efizzer_sockpath);
+
+        sdev = SYS_BUS_DEVICE(dev);
+        sysbus_realize_and_unref(sdev, &error_fatal);
+
+        sysbus_mmio_map(sdev, 0, pcms->efizzer_addr);
+      }
+
     }
 }
 

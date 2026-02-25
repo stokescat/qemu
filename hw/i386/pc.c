@@ -1723,6 +1723,84 @@ static void pc_machine_set_max_fw_size(Object *obj, Visitor *v,
 }
 
 
+
+// =============================================================
+
+static void pc_machine_set_efizzer_sockpath(Object *obj, Visitor *v,
+                                            const char *name, void *opaque,
+                                            Error **errp)
+{
+    PCMachineState *pcms = PC_MACHINE(obj);
+    char *sockpath = NULL;
+
+    if (pcms->efizzer_sockpath != NULL) {
+      g_free(pcms->efizzer_sockpath);
+      pcms->efizzer_sockpath = NULL;
+    }
+
+    if (!visit_type_str(v, name, &sockpath, errp)) {
+      error_setg(errp, "%s setter error!", PC_MACHINE_EFIZZER_SOCKPATH);
+      if (sockpath != NULL) {
+        g_free(sockpath);
+      }
+      return;
+    }
+
+    pcms->efizzer_sockpath = sockpath;
+}
+
+static void pc_machine_get_efizzer_sockpath(Object *obj, Visitor *v,
+                                            const char *name, void *opaque,
+                                            Error **errp)
+{
+  PCMachineState *pcms = PC_MACHINE(obj);
+
+  visit_type_str(v, name, &(pcms->efizzer_sockpath), errp);
+}
+
+
+static void pc_machine_release_efizzer_sockpath(Object *obj, const char *name,
+                                                void *opaque)
+{
+  PCMachineState *pcms = PC_MACHINE(obj);
+
+    if (pcms->efizzer_sockpath != NULL) {
+      g_free(pcms->efizzer_sockpath);
+      pcms->efizzer_sockpath = NULL;
+    }
+}
+
+
+static void pc_machine_set_efizzer_baseaddr(Object *obj, Visitor *v,
+                                            const char *name, void *opaque,
+                                            Error **errp)
+{
+  PCMachineState *pcms = PC_MACHINE(obj);
+  uint64_t addr = 0;
+
+  if (!visit_type_uint64(v, name, &addr, errp)) {
+    error_setg(errp, "%s setter error!", PC_MACHINE_EFIZZER_BASEADDR);
+    return;
+  }
+  pcms->efizzer_addr = addr;
+
+}
+
+static void pc_machine_get_efizzer_baseaddr(Object *obj, Visitor *v,
+                                            const char *name, void *opaque,
+                                            Error **errp)
+{
+  PCMachineState *pcms = PC_MACHINE(obj);
+  uint64_t addr = pcms->efizzer_addr;
+
+  visit_type_uint64(v, name, &addr, errp);
+
+}
+
+
+// =====================================================
+
+
 static void pc_machine_initfn(Object *obj)
 {
     PCMachineState *pcms = PC_MACHINE(obj);
@@ -1894,6 +1972,18 @@ static void pc_machine_class_init(ObjectClass *oc, void *data)
         NULL, NULL);
     object_class_property_set_description(oc, PC_MACHINE_SMBIOS_EP,
         "SMBIOS Entry Point type [32, 64]");
+
+    object_class_property_add(oc, PC_MACHINE_EFIZZER_SOCKPATH, "str",
+        pc_machine_get_efizzer_sockpath, pc_machine_set_efizzer_sockpath,
+        pc_machine_release_efizzer_sockpath, NULL);
+    object_class_property_set_description(oc, PC_MACHINE_EFIZZER_SOCKPATH,
+        "Set path to socket for the EFIZZER oracle");
+
+    object_class_property_add(oc, PC_MACHINE_EFIZZER_BASEADDR, "uint64",
+        pc_machine_get_efizzer_baseaddr, pc_machine_set_efizzer_baseaddr,
+        NULL, NULL);
+    object_class_property_set_description(oc, PC_MACHINE_EFIZZER_BASEADDR,
+        "Set base address for the EFIZZER device");
 }
 
 static const TypeInfo pc_machine_info = {
