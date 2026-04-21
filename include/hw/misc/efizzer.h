@@ -21,6 +21,10 @@ OBJECT_DECLARE_SIMPLE_TYPE(EfizzerState, EFIZZER)
 
 #define MMEP_HIT_EVENT_MSGLEN  16
 #define MMEP_MOD_EVENT_MSGLEN  40
+#define MMEP_RDY_EVENT_MSGLEN  8
+#define MMEP_RUN_EVENT_MSGLEN  8
+#define MMEP_ERR_EVENT_MSGLEN  8
+#define MMEP_FIN_EVENT_MSGLEN  8
 
 typedef struct EfizzerState {
     SysBusDevice      pdev;
@@ -31,6 +35,10 @@ typedef struct EfizzerState {
     uint8_t           regw_modguid[16];
     uint64_t          regw_modsize;
     uint64_t          regw_modaddr;
+
+    uint64_t          regw_cmd;
+    uint64_t          regr_cmd;
+    uint64_t          regr_buf[504];
 
     char              *sock_addr;
     QIOChannelSocket  *sock_io;
