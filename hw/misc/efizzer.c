@@ -269,6 +269,7 @@ static uint64_t efizzer_mmio_read(void *opaque, hwaddr offset, unsigned size)
     }
 
     if (offset == MMEP_REG_CMD) {
+      s->regr_cmd = 0;
       efizzer_read_command(s);
       return s->regr_cmd;
     }
